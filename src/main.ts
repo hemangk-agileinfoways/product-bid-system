@@ -8,6 +8,7 @@ import { LoggerService } from "./common/logger/logger.service";
 import { HttpExceptionFilter } from "./common/exceptions/http-exception.filter";
 import helmet from "helmet";
 import { AppEnvironment } from "./common/constants/enum.constant";
+import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

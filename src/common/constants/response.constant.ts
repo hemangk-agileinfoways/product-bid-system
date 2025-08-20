@@ -1,3 +1,5 @@
+import { HttpStatus } from "@nestjs/common";
+
 export const RESPONSE_MESSAGES = {
   SUCCESS: "Response success",
   USER_LOGIN: "User Successfully Login",
@@ -9,4 +11,9 @@ export const RESPONSE_MESSAGES = {
   RECORD_INSERTED: "Record Inserted",
   RECORD_UPDATED: "Record Updated",
   RECORD_DELETED: "Record Deleted",
+  DATABASE_ERROR: "Database operation failed",
 };
+
+export const RESPONSE_CODES = {
+   DATABASE_ERROR: HttpStatus.INTERNAL_SERVER_ERROR,
+}

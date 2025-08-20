@@ -12,7 +12,8 @@ import AppConfiguration from "./config/app.config";
 import DatabaseConfiguration from "./config/database.config";
 import AuthConfiguration from "./config/auth.config";
 import { UsersModule } from "./users/users.module";
-import { ProductsModule } from "./products/products.module";
+import { ProductsModule } from "./modules/products/products.module";
+import { SlotsModule } from "./slots/slots.module";
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { ProductsModule } from "./products/products.module";
     AuthModule,
     ThrottleModule,
     UsersModule,
-    ProductsModule
+    ProductsModule,
+    SlotsModule
   ],
   providers: [
     {

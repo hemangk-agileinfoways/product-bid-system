@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MongoError } from 'typeorm';
 import { Product } from './entity/product.entity';
@@ -88,11 +88,6 @@ export class ProductsService {
         throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.AMOUNT_LOCKED);
       }
 
-      // Validate status transition if status is being updated
-      if (updateProductDto.status) {
-        await this.validateStatusTransition(product.status, updateProductDto.status);
-      }
-
       const updatedProduct = await this.productRepository.save({
         ...product,
         ...updateProductDto,
@@ -101,9 +96,11 @@ export class ProductsService {
       return updatedProduct;
     } catch (error) {
       this.myLogger.error(`Failed to update product with id ${id}`, error.stack);
-      if (error.response?.statusCode === 404) {
-        throw error; // Re-throw Not Found exception
+      
+      if (error instanceof HttpException) {
+        throw error;
       }
+
       throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
@@ -124,20 +121,50 @@ export class ProductsService {
       await this.productRepository.remove(product);
     } catch (error) {
       this.myLogger.error(`Failed to delete product with id ${id}`, error.stack);
-      if (error.response?.statusCode === 404) {
-        throw error; // Re-throw Not Found exception
+      
+      if (error instanceof HttpException) {
+        throw error;
       }
-      if (error.response?.statusCode === 400) {
-        throw error; // Re-throw Bad Request exception
-      }
+
       throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
 
+  async updateStatus(id: string, newStatus: ProductStatus, hasSlot?: boolean): Promise<Product> {
+    try {
+      const product = await this.findOne(id);
+
+      // Prevent editing if already sold
+      if (product.status === ProductStatus.SOLD) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.ALREADY_SOLD);
+      }
+
+      // Validate transition
+      await this.validateStatusTransition(product.status, newStatus);
+
+      
+      product.hasSlots = hasSlot ?? product.hasSlots;
+      
+      // Apply the update
+      product.status = newStatus;
+      return await this.productRepository.save(product);
+
+    } catch (error) {
+      this.myLogger.error(`Failed to update status for product ${id}`, error.stack);
+      
+      if (error instanceof HttpException) {
+         throw error;
+      }
+
+      throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
+    }
+  }
+
+
   private async validateStatusTransition(currentStatus: ProductStatus, newStatus: ProductStatus): Promise<void> {
     const validTransitions = {
       [ProductStatus.READY_FOR_SLOT]: [ProductStatus.READY_FOR_BID],
-      [ProductStatus.READY_FOR_BID]: [ProductStatus.BID_STARTED],
+      [ProductStatus.READY_FOR_BID]: [ProductStatus.BID_STARTED, ProductStatus.READY_FOR_SLOT], // <-- rollback allowed
       [ProductStatus.BID_STARTED]: [ProductStatus.SOLD],
       [ProductStatus.SOLD]: [],
     };
