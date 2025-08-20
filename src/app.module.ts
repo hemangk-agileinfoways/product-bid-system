@@ -26,6 +26,7 @@ import { ProductsModule } from "./products/products.module";
     AuthModule,
     ThrottleModule,
     UsersModule,
+    ProductsModule
   ],
   providers: [
     {

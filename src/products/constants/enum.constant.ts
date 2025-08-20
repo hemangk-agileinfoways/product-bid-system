@@ -1,0 +1,6 @@
+export enum ProductStatus {
+  READY_FOR_SLOT = 'READY_FOR_SLOT',
+  READY_FOR_BID = 'READY_FOR_BID',
+  BID_STARTED = 'BID_STARTED',
+  SOLD = 'SOLD'
+}

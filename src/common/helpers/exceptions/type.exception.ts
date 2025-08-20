@@ -1,6 +1,17 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 
 export const TypeExceptions = {
+  UnknownError(message: string): HttpException {
+    return new HttpException(
+      {
+        message: message || "Something went wrong, please try again later!",
+        error: "UnknownError",
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  },
+
   UserNotFound(): HttpException {
     return new HttpException(
       {

@@ -42,9 +42,11 @@ async function bootstrap() {
     app.enableCors();
   }
   // Apply global validation pipe to handle DTO validation
-  app.useGlobalPipes(
+ app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
     }),
   );
   // Apply the HttpExceptionFilter globally
