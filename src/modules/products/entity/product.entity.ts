@@ -1,5 +1,5 @@
 import { Entity, ObjectIdColumn, ObjectId, Column, BeforeInsert, BeforeUpdate } from "typeorm";
-import { TABLE_NAMES } from "../../common/constants/table-name.constant";
+import { TABLE_NAMES } from "../../../common/constants/table-name.constant";
 import { ProductStatus } from "../constants/enum.constant";
 
 @Entity({ name: TABLE_NAMES.PRODUCT })

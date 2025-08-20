@@ -5,10 +5,11 @@ import { Product } from './entity/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductStatus } from './constants/enum.constant';
-import { TypeExceptions } from '../common/helpers/exceptions';
-import { LoggerService } from '../common/logger/logger.service';
+import { TypeExceptions } from '../../common/helpers/exceptions';
+import { LoggerService } from '../../common/logger/logger.service';
 import { PRODUCT_ERROR_MESSAGES } from './constants/error.constant';
 import { ObjectId } from 'mongodb';
+import { RESPONSE_MESSAGES } from 'src/common/constants/response.constant';
 
 @Injectable()
 export class ProductsService {
@@ -32,7 +33,7 @@ export class ProductsService {
       if (error instanceof MongoError) {
         throw TypeExceptions.InvalidOperation(error.message);
       }
-      throw TypeExceptions.UnknownError(PRODUCT_ERROR_MESSAGES.DATABASE_ERROR);
+      throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
 
@@ -41,7 +42,7 @@ export class ProductsService {
       return await this.productRepository.find();
     } catch (error) {
       this.myLogger.error('Failed to fetch products', error.stack);
-      throw TypeExceptions.UnknownError(PRODUCT_ERROR_MESSAGES.DATABASE_ERROR);
+      throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
 
@@ -65,7 +66,7 @@ export class ProductsService {
       if (error.response?.statusCode === 404) {
         throw error; // Re-throw Not Found exception
       }
-      throw TypeExceptions.UnknownError(PRODUCT_ERROR_MESSAGES.DATABASE_ERROR);
+      throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
 
@@ -76,6 +77,10 @@ export class ProductsService {
       // Check if product can be edited based on status
       if (product.status === ProductStatus.BID_STARTED) {
         throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_STARTED);
+      }
+
+      if (product.status === ProductStatus.SOLD) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.ALREADY_SOLD);
       }
 
       // Check if amount can be updated
@@ -99,7 +104,7 @@ export class ProductsService {
       if (error.response?.statusCode === 404) {
         throw error; // Re-throw Not Found exception
       }
-      throw TypeExceptions.UnknownError(PRODUCT_ERROR_MESSAGES.DATABASE_ERROR);
+      throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
 
@@ -112,6 +117,10 @@ export class ProductsService {
         throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_STARTED);
       }
 
+      if (product.status === ProductStatus.SOLD) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.ALREADY_SOLD);
+      }
+
       await this.productRepository.remove(product);
     } catch (error) {
       this.myLogger.error(`Failed to delete product with id ${id}`, error.stack);
@@ -121,7 +130,7 @@ export class ProductsService {
       if (error.response?.statusCode === 400) {
         throw error; // Re-throw Bad Request exception
       }
-      throw TypeExceptions.UnknownError(PRODUCT_ERROR_MESSAGES.DATABASE_ERROR);
+      throw TypeExceptions.UnknownError(RESPONSE_MESSAGES.DATABASE_ERROR);
     }
   }
 

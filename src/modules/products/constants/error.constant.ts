@@ -5,9 +5,9 @@ export const PRODUCT_ERROR_MESSAGES = {
   INVALID_ID: "Invalid product ID format",
   BID_STARTED: "You cannot perform this action as bidding has started",
   AMOUNT_LOCKED: "You cannot update amount as slots are created",
+  ALREADY_SOLD: "You cannot perform this action as product is already sold",
   INVALID_STATUS_TRANSITION: (from: string, to: string) => 
     `Invalid status transition from ${from} to ${to}`,
-  DATABASE_ERROR: "Database operation failed",
 } as const;
 
 export const PRODUCT_ERROR_CODES = {
@@ -16,5 +16,4 @@ export const PRODUCT_ERROR_CODES = {
   BID_STARTED: HttpStatus.BAD_REQUEST,
   AMOUNT_LOCKED: HttpStatus.BAD_REQUEST,
   INVALID_STATUS_TRANSITION: HttpStatus.BAD_REQUEST,
-  DATABASE_ERROR: HttpStatus.INTERNAL_SERVER_ERROR,
 } as const;

@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, UseGuards, HttpStatus, UseInterceptors, UploadedFile, Delete } from '@nestjs/common';
-import { ResponseMessage } from '../common/decorators/response.decorator';
+import { ResponseMessage } from '../../common/decorators/response.decorator';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { SUCCESS_RESPONSES } from '../common/helpers/responses/success.helper';
+import { SUCCESS_RESPONSES } from '../../common/helpers/responses/success.helper';
 import { Public } from 'src/security/auth/auth.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from "multer"
