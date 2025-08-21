@@ -14,6 +14,7 @@ import AuthConfiguration from "./config/auth.config";
 import { UsersModule } from "./users/users.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { SlotsModule } from "./modules/slots/slots.module";
+import { ResultsModule } from "./modules/results/results.module";
 import { BidsModule } from "./modules/bids/bids.module";
 
 @Module({
@@ -28,6 +29,10 @@ import { BidsModule } from "./modules/bids/bids.module";
     AuthModule,
     ThrottleModule,
     UsersModule,
+    ProductsModule,
+    SlotsModule,
+    BidsModule,
+    ResultsModule,
     ProductsModule,
     SlotsModule,
     BidsModule,

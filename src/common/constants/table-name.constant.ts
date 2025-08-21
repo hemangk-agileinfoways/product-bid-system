@@ -7,5 +7,6 @@ export const TABLE_NAMES = {
   PRODUCT: `${PROJECT_PREFIX}product`,
   SLOT: `${PROJECT_PREFIX}slot`,
   BID: `${PROJECT_PREFIX}bid`,
+  RESULT: `${PROJECT_PREFIX}result`,
   // Add more tables as needed
 };

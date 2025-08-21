@@ -205,6 +205,7 @@ export class ProductsService {
         ProductStatus.BID_ENDED,
         ProductStatus.READY_FOR_BID,
       ],
+      [ProductStatus.BID_ENDED]: [ProductStatus.SOLD],
       [ProductStatus.SOLD]: [],
     };
 
