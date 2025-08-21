@@ -14,6 +14,7 @@ import AuthConfiguration from "./config/auth.config";
 import { UsersModule } from "./users/users.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { SlotsModule } from "./modules/slots/slots.module";
+import { BidsModule } from "./modules/bids/bids.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SlotsModule } from "./modules/slots/slots.module";
     UsersModule,
     ProductsModule,
     SlotsModule,
+    BidsModule,
   ],
   providers: [
     {
