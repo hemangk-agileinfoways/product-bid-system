@@ -4,8 +4,8 @@ import { MongoRepository } from "typeorm";
 import { Slot } from "./entity/slot.entity";
 import { CreateSlotsDto, CreateSlotItemDto } from "./dto/create-slot.dto";
 import { UpdateSlotsDto } from "./dto/update-slot.dto";
-import { TypeExceptions } from "../common/helpers/exceptions";
-import { LoggerService } from "../common/logger/logger.service";
+import { TypeExceptions } from "../../common/helpers/exceptions";
+import { LoggerService } from "../../common/logger/logger.service";
 import {
   SLOT_ERROR_MESSAGES,
   SLOT_SUCCESS_MESSAGES,

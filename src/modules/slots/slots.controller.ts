@@ -11,8 +11,8 @@ import { SlotsService } from "./slots.service";
 import { CreateSlotsDto } from "./dto/create-slot.dto";
 import { UpdateSlotsDto } from "./dto/update-slot.dto";
 import { Public } from "src/security/auth/auth.decorator";
-import { ResponseMessage } from "../common/decorators/response.decorator";
-import { SUCCESS_RESPONSES } from "../common/helpers/responses/success.helper";
+import { ResponseMessage } from "../../common/decorators/response.decorator";
+import { SUCCESS_RESPONSES } from "../../common/helpers/responses/success.helper";
 import { DeleteSlotsDto } from "./dto/delete-slot.dto";
 
 @Public()
