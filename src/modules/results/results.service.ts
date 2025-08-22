@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MongoRepository } from "typeorm";
-import { MongoError, ObjectId } from "mongodb";
+import { MongoError } from "mongodb";
 import { Result } from "./entity/result.entity";
 import { Bid, BidStatus } from "../bids/entity/bid.entity";
 import { DeclareResultDto } from "./dto/declare-result.dto";

@@ -32,9 +32,6 @@ export class Result {
   @Column()
   winningBidId: string;
 
-  @Column()
-  declaredById: string;
-
   @Column("json")
   weightCalculation: Record<string, WeightCalculation>;
 

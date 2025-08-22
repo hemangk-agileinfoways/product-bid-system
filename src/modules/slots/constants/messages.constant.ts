@@ -7,6 +7,7 @@ export const SLOT_ERROR_MESSAGES = {
   UPDATE_FAILED: "Failed to update slot",
   DELETE_FAILED: "Failed to delete slot",
   NO_UPDATE_FIELDS: "At least one field must be provided for update",
+  PRODUCT_MISMATCH: "One or more slots do not belong to the specified product",
 } as const;
 
 export const SLOT_SUCCESS_MESSAGES = {

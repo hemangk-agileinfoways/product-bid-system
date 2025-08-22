@@ -11,6 +11,23 @@ export const BID_ERROR_MESSAGES = {
   SLOTS_FULL_NO_WITHDRAWAL: "Cannot withdraw bid - all slots are full",
   INSUFFICIENT_SLOTS: "Insufficient slots available",
   SLOT_NOT_AVAILABLE: "Requested slot is not available",
+  NO_SLOTS_CONFIGURED: "No slots configured for this product",
+  SLOT_NOT_FOUND: (slotId: string) => `Slot ${slotId} not found`,
+  INSUFFICIENT_SLOT_AVAILABILITY: (
+    slotId: string,
+    bidPrice: number,
+    available: number,
+    requested: number
+  ) =>
+    `Slot ${slotId} (₹${bidPrice}) has only ${available} slots available, but ${requested} requested`,
+  INVALID_BID_PRICE: (
+    bidPrice: number,
+    slotId: string,
+    expectedPrice: number
+  ) =>
+    `Invalid bid price ₹${bidPrice} for slot ${slotId}. Expected ₹${expectedPrice}`,
+
+  USER_NOT_AUTHORIZED: "User is not authorized to perform this action",
 } as const;
 
 export const BID_ERROR_CODES = {

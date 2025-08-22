@@ -89,6 +89,10 @@ export class ProductsService {
         );
       }
 
+      if (product.status === ProductStatus.BID_ENDED) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_ENDED);
+      }
+
       if (product.status === ProductStatus.SOLD) {
         throw TypeExceptions.InvalidOperation(
           PRODUCT_ERROR_MESSAGES.ALREADY_SOLD
@@ -131,6 +135,10 @@ export class ProductsService {
         throw TypeExceptions.InvalidOperation(
           PRODUCT_ERROR_MESSAGES.BID_STARTED
         );
+      }
+
+      if (product.status === ProductStatus.BID_ENDED) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_ENDED);
       }
 
       if (product.status === ProductStatus.SOLD) {

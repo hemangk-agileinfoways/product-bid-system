@@ -14,6 +14,7 @@ import { ProductsService } from "../products/products.service";
 import { ProductStatus } from "../products/constants/enum.constant";
 import { SlotsService } from "../slots/slots.service";
 import { JwtPayload } from "src/common/interfaces/jwt.interface";
+import { PRODUCT_ERROR_MESSAGES } from "../products/constants/error.constant";
 
 interface SlotAvailability {
   slotId: string;
@@ -48,6 +49,12 @@ export class BidsService {
     try {
       let bid: Bid;
 
+      if (!user.id) {
+        throw TypeExceptions.InvalidOperation(
+          BID_ERROR_MESSAGES.USER_NOT_AUTHORIZED
+        );
+      }
+
       // Validate product
       const product = await this.productsService.findOne(dto.prodId);
       if (!product) {
@@ -55,9 +62,7 @@ export class BidsService {
       }
 
       if (product.status === ProductStatus.BID_ENDED) {
-        throw TypeExceptions.InvalidOperation(
-          BID_ERROR_MESSAGES.INSUFFICIENT_SLOTS
-        );
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_ENDED);
       }
 
       if (
@@ -73,7 +78,7 @@ export class BidsService {
       const productSlots = await this.slotsService.getProductSlots(dto.prodId);
 
       if (productSlots.length === 0) {
-        throw TypeExceptions.NotFound("No slots configured for this product");
+        throw TypeExceptions.NotFound(BID_ERROR_MESSAGES.NO_SLOTS_CONFIGURED);
       }
 
       // Get current slot availability
@@ -87,19 +92,30 @@ export class BidsService {
         const slotAvailability = slotAvailabilityMap.get(slotBid.slotId);
 
         if (!slotAvailability) {
-          throw TypeExceptions.NotFound(`Slot ${slotBid.slotId} not found`);
+          throw TypeExceptions.NotFound(
+            BID_ERROR_MESSAGES.SLOT_NOT_FOUND(slotBid.slotId)
+          );
         }
 
         if (slotBid.count > slotAvailability.availableSlots) {
           throw TypeExceptions.InvalidOperation(
-            `Slot ${slotBid.slotId} (₹${slotAvailability.bidPrice}) has only ${slotAvailability.availableSlots} slots available, but ${slotBid.count} requested`
+            BID_ERROR_MESSAGES.INSUFFICIENT_SLOT_AVAILABILITY(
+              slotBid.slotId,
+              slotAvailability.bidPrice,
+              slotAvailability.availableSlots,
+              slotBid.count
+            )
           );
         }
 
         // Validate bid price matches slot's bid price
         if (slotBid.bidPrice !== slotAvailability.bidPrice) {
           throw TypeExceptions.InvalidOperation(
-            `Invalid bid price ₹${slotBid.bidPrice} for slot ${slotBid.slotId}. Expected ₹${slotAvailability.bidPrice}`
+            BID_ERROR_MESSAGES.INVALID_BID_PRICE(
+              slotBid.bidPrice,
+              slotBid.slotId,
+              slotAvailability.bidPrice
+            )
           );
         }
       }
@@ -114,11 +130,28 @@ export class BidsService {
       });
 
       if (existingBid) {
-        existingBid.slots.push(...dto.slots);
-        existingBid.totalAmount += dto.slots.reduce(
-          (sum, slot) => sum + slot.count * slot.bidPrice,
-          0
-        );
+        for (const slot of dto.slots) {
+          const slotId = new ObjectId(slot.slotId);
+
+          // check if slot already exists in user's bid
+          const existingSlot = existingBid.slots.find(
+            (s) => s.slotId.toString() === slotId.toString()
+          );
+
+          if (existingSlot) {
+            // increment count if slot already exists
+            existingSlot.count += slot.count;
+          } else {
+            // otherwise, add new slot
+            existingBid.slots.push({
+              ...slot,
+              slotId: slot.slotId,
+            });
+          }
+
+          // always update total amount
+          existingBid.totalAmount += slot.count * slot.bidPrice;
+        }
 
         await this.bidRepository.updateOne(
           { _id: existingBid._id },
@@ -210,12 +243,11 @@ export class BidsService {
     }
   }
 
-  async withdrawBid(dto: WithdrawBidDto, user: JwtPayload): Promise<Bid> {
+  async withdrawBid(dto: WithdrawBidDto): Promise<Bid> {
     try {
       const bid = await this.bidRepository.findOne({
         where: {
           _id: new ObjectId(dto.bidId),
-          userId: user.id.toString(),
           status: BidStatus.ACTIVE,
         },
       });
@@ -303,9 +335,7 @@ export class BidsService {
         }
       }
 
-      this.myLogger.log(
-        `Bid ${bid._id} withdrawn successfully by user ${user.id}`
-      );
+      this.myLogger.log(`Bid ${bid._id} withdrawn successfully`);
       return updatedBid as Bid;
       //   });
     } catch (error) {

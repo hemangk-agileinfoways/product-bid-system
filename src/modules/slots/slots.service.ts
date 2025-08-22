@@ -44,6 +44,10 @@ export class SlotsService {
         );
       }
 
+      if (product.status === ProductStatus.BID_ENDED) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_ENDED);
+      }
+
       if (product.status === ProductStatus.SOLD) {
         throw TypeExceptions.InvalidOperation(
           PRODUCT_ERROR_MESSAGES.ALREADY_SOLD
@@ -141,10 +145,15 @@ export class SlotsService {
 
   async getProductSlots(productId: string): Promise<Slot[]> {
     try {
-      return await this.slotRepository.find({
+      const slots = await this.slotRepository.find({
         where: { productId: new ObjectId(productId) },
         order: { bidPrice: "ASC" },
       });
+
+      return slots.map((slot) => ({
+        ...slot,
+        productId: slot.productId,
+      })) as Slot[];
     } catch (error) {
       this.myLogger.error(
         `Failed to fetch slots for product ${productId}`,
@@ -165,6 +174,10 @@ export class SlotsService {
 
     if (product.status === ProductStatus.BID_STARTED) {
       throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_STARTED);
+    }
+
+    if (product.status === ProductStatus.BID_ENDED) {
+      throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_ENDED);
     }
 
     if (product.status === ProductStatus.SOLD) {
@@ -263,10 +276,29 @@ export class SlotsService {
           PRODUCT_ERROR_MESSAGES.BID_STARTED
         );
 
+      if (product.status === ProductStatus.BID_ENDED) {
+        throw TypeExceptions.InvalidOperation(PRODUCT_ERROR_MESSAGES.BID_ENDED);
+      }
+
       if (product.status === ProductStatus.SOLD)
         throw TypeExceptions.InvalidOperation(
           PRODUCT_ERROR_MESSAGES.ALREADY_SOLD
         );
+
+      const existingSlots = (await this.getProductSlots(productId)).map((s) =>
+        s._id.toString()
+      );
+
+      // Check if all incoming ids exist in existing slots
+      const isValid = deleteSlotsDto.ids.every((id) =>
+        existingSlots.includes(id)
+      );
+
+      if (!isValid) {
+        throw TypeExceptions.InvalidOperation(
+          SLOT_ERROR_MESSAGES.PRODUCT_MISMATCH
+        );
+      }
 
       // Bulk delete
       await this.slotRepository.deleteMany({
