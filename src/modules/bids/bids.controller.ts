@@ -15,13 +15,34 @@ import { ResponseMessage } from "src/common/decorators/response.decorator";
 import { ValidationPipe } from "@nestjs/common";
 import { BID_SUCCESS_MESSAGES } from "./constants/messages.constant";
 import { Public } from "src/security/auth/auth.decorator";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+} from "@nestjs/swagger";
 
+@ApiTags("Bids")
+@ApiBearerAuth()
 @Controller("bids")
 export class BidsController {
   constructor(private readonly bidsService: BidsService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiOperation({
+    summary: "Place a new bid",
+    description: "Place a bid on one or more slots for a product",
+  })
+  @ApiBody({ type: PlaceBidDto })
+  @ApiResponse({ status: 201, description: "Bid successfully placed" })
+  @ApiResponse({ status: 400, description: "Bad Request - Invalid input data" })
+  @ApiResponse({
+    status: 401,
+    description: "Unauthorized - User not authenticated",
+  })
   @ResponseMessage(BID_SUCCESS_MESSAGES.CREATED)
   async placeBid(
     @Body(new ValidationPipe({ transform: true })) dto: PlaceBidDto,
@@ -37,7 +58,7 @@ export class BidsController {
     @Body(new ValidationPipe({ transform: true })) dto: WithdrawBidDto,
     @Request() req
   ) {
-    return this.bidsService.withdrawBid(dto, req.user);
+    return this.bidsService.withdrawBid(dto);
   }
 
   @Public()

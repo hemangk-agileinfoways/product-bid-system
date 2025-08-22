@@ -14,13 +14,36 @@ import { Public } from "src/security/auth/auth.decorator";
 import { ResponseMessage } from "../../common/decorators/response.decorator";
 import { SUCCESS_RESPONSES } from "../../common/helpers/responses/success.helper";
 import { DeleteSlotsDto } from "./dto/delete-slot.dto";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+} from "@nestjs/swagger";
 
+@ApiTags("Slots")
+@ApiBearerAuth()
 @Public()
 @Controller("slots")
 export class SlotsController {
   constructor(private readonly slotsService: SlotsService) {}
 
   @Post(":productId")
+  @ApiOperation({
+    summary: "Create slots for a product",
+    description:
+      "Creates multiple slots with different bid prices for a specific product",
+  })
+  @ApiParam({
+    name: "productId",
+    description: "ID of the product to create slots for",
+  })
+  @ApiBody({ type: CreateSlotsDto })
+  @ApiResponse({ status: 201, description: "Slots successfully created" })
+  @ApiResponse({ status: 400, description: "Bad Request - Invalid input data" })
+  @ApiResponse({ status: 404, description: "Product not found" })
   @ResponseMessage(`Slots ${SUCCESS_RESPONSES.CREATED.MESSAGE}`)
   async createSlots(
     @Param("productId") productId: string,

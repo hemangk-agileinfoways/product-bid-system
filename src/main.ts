@@ -8,7 +8,7 @@ import { LoggerService } from "./common/logger/logger.service";
 import { HttpExceptionFilter } from "./common/exceptions/http-exception.filter";
 import helmet from "helmet";
 import { AppEnvironment } from "./common/constants/enum.constant";
-import 'reflect-metadata';
+import "reflect-metadata";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -17,19 +17,22 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const appConfig = configService.get("express");
 
-  // Configure OPEN API/Swagger
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle(appConfig.name)
-    .setDescription(appConfig.description)
-    .setVersion(appConfig.version)
-    .addServer("/")
-    .addServer("/xcode")
-    .addBearerAuth()
-    .build();
+  // Configure OpenAPI/Swagger documentation
+  if (
+    appConfig.environment !== AppEnvironment.PRODUCTION ||
+    process.env.ENABLE_DOCS === "true"
+  ) {
+    const { getSwaggerConfig, swaggerOptions } = await import(
+      "./config/swagger.config"
+    );
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  if (appConfig.environment != AppEnvironment.PRODUCTION) {
-    SwaggerModule.setup("/", app, document);
+    const document = SwaggerModule.createDocument(
+      app,
+      getSwaggerConfig(appConfig)
+    );
+
+    // Setup Swagger UI
+    SwaggerModule.setup("api-docs", app, document, swaggerOptions);
   }
 
   // Apply custom logger
@@ -43,12 +46,12 @@ async function bootstrap() {
     app.enableCors();
   }
   // Apply global validation pipe to handle DTO validation
- app.useGlobalPipes(
+  app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-    }),
+    })
   );
   // Apply the HttpExceptionFilter globally
   app.useGlobalFilters(new HttpExceptionFilter());

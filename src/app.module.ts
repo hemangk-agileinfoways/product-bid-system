@@ -33,9 +33,6 @@ import { BidsModule } from "./modules/bids/bids.module";
     SlotsModule,
     BidsModule,
     ResultsModule,
-    ProductsModule,
-    SlotsModule,
-    BidsModule,
   ],
   providers: [
     {
